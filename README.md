@@ -48,17 +48,32 @@
 분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트와 파이선으로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
 
 ```
-cd app
-mvn spring-boot:run
+public void onPostPersist(){
 
-cd pay
-mvn spring-boot:run 
+        //Following code causes dependency to external APIs
+        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
 
-cd store
-mvn spring-boot:run  
 
-cd customer
-python policy-handler.py 
+        delivery.external.PaymentStatus paymentStatus = new delivery.external.PaymentStatus();
+        // mappings goes here
+        OrderApplication.applicationContext.getBean(delivery.external.PaymentStatusService.class)
+            .cancelPayment(paymentStatus);
+
+
+        OrderCanceled orderCanceled = new OrderCanceled(this);
+        orderCanceled.publishAfterCommit();
+
+
+
+        OrderPlaced orderPlaced = new OrderPlaced(this);
+        orderPlaced.publishAfterCommit();
+
+
+
+        OrderChanged orderChanged = new OrderChanged(this);
+        orderChanged.publishAfterCommit();
+
+    }
 ```
 
 # CQRS
