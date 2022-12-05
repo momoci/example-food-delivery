@@ -45,7 +45,7 @@
 
 # Saga (Pub / Sub)
 
-분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트와 파이선으로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
+사용자에 의해 주문상태가 변경되면 각 이벤트에 맞는 동작이 수행된다.
 
 ```
 public void onPostPersist(){
@@ -75,6 +75,44 @@ public void onPostPersist(){
 
     }
 ```
+
+```
+@StreamListener(value=KafkaProcessor.INPUT, condition="headers['type']=='OrderPlaced'")
+    public void wheneverOrderPlaced_Pay(@Payload OrderPlaced orderPlaced){
+
+        OrderPlaced event = orderPlaced;
+        System.out.println("\n\n##### listener Pay : " + orderPlaced + "\n\n");
+
+
+        
+
+        // Sample Logic //
+        PaymentStatus.pay(event);
+        
+
+        
+
+    }
+```
+
+```
+@StreamListener(value=KafkaProcessor.INPUT, condition="headers['type']=='OrderChanged'")
+    public void wheneverOrderChanged_UpdateStatus(@Payload OrderChanged orderChanged){
+
+        OrderChanged event = orderChanged;
+        System.out.println("\n\n##### listener UpdateStatus : " + orderChanged + "\n\n");
+
+
+        
+
+        // Sample Logic //
+        FoodCooking.updateStatus(event);
+        
+
+        
+
+    }
+```    
 
 # CQRS
 
