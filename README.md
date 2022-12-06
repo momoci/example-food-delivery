@@ -128,6 +128,9 @@ Vary: Access-Control-Request-Headers
 ```
 
 # CQRS
+주문 진행 상태가 변경되면 Mypage의 상태가 변하는지 확인할 수 있다.
+
+![image](https://user-images.githubusercontent.com/118874947/205825675-262521af-aea3-4e52-9962-fe3865ae3aea.png)
 
 ```
 gitpod /workspace/delivery (main) $ http :8084/myPages
