@@ -354,3 +354,192 @@ spring:
               - "*"
             allowCredentials: true
 ```
+
+# 추가사항 1
+주문이 접수되었을때 상점주인이 설정해놓은 주문수용량을 확인하고 초과될 시 자동거절된다.
+
+
+# 추가사항 2
+고객은 아직 요리가 시작이 되지 않은 주문의 메뉴 변경이 가능하다.
+```
+gitpod /workspace/delivery (main) $ http :8081/orderLists foodId="피자" address="111" status="주문승인"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Tue, 06 Dec 2022 07:57:28 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orderLists/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_links": {
+        "orderList": {
+            "href": "http://localhost:8081/orderLists/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orderLists/1"
+        }
+    },
+    "address": "111",
+    "customerId": null,
+    "foodId": "피자",
+    "status": "주문승인"
+}
+```
+
+```
+gitpod /workspace/delivery (main) $ http :8082/foodCookings
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Tue, 06 Dec 2022 07:57:32 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "foodCookings": [
+            {
+                "_links": {
+                    "accept": {
+                        "href": "http://localhost:8082/foodCookings/1/accept"
+                    },
+                    "foodCooking": {
+                        "href": "http://localhost:8082/foodCookings/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8082/foodCookings/1"
+                    }
+                },
+                "address": "111",
+                "foodId": "피자",
+                "orderCapacity": null,
+                "orderCount": null,
+                "orderId": 1,
+                "status": "주문승인"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8082/profile/foodCookings"
+        },
+        "self": {
+            "href": "http://localhost:8082/foodCookings"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+```
+
+```
+gitpod /workspace/delivery (main) $ http PATCH :8081/orderLists/1 foodId="짜장" address="222" status="주문접수중"
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/json
+Date: Tue, 06 Dec 2022 07:57:53 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_links": {
+        "orderList": {
+            "href": "http://localhost:8081/orderLists/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orderLists/1"
+        }
+    },
+    "address": "222",
+    "customerId": null,
+    "foodId": "짜장",
+    "status": "주문접수중"
+}
+```
+
+```
+gitpod /workspace/delivery (main) $ http :8082/foodCookings
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Tue, 06 Dec 2022 07:57:57 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "foodCookings": [
+            {
+                "_links": {
+                    "accept": {
+                        "href": "http://localhost:8082/foodCookings/1/accept"
+                    },
+                    "foodCooking": {
+                        "href": "http://localhost:8082/foodCookings/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8082/foodCookings/1"
+                    }
+                },
+                "address": "222",
+                "foodId": "짜장",
+                "orderCapacity": null,
+                "orderCount": null,
+                "orderId": 1,
+                "status": "주문접수중"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8082/profile/foodCookings"
+        },
+        "self": {
+            "href": "http://localhost:8082/foodCookings"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+```
+
+```
+public static void updateStatus(OrderChanged orderChanged){
+        repository().findById(orderChanged.getId()).ifPresent(foodCooking->{
+            
+            // foodCooking.get // do something
+            if(foodCooking.getStatus().equals("주문접수중") || 
+               foodCooking.getStatus().equals("주문접수") || 
+               foodCooking.getStatus().equals("주문승인")){
+                foodCooking.setFoodId(orderChanged.getFoodId());
+                foodCooking.setOrderId(orderChanged.getId());
+                foodCooking.setId(orderChanged.getId());
+                foodCooking.setAddress(orderChanged.getAddress());
+                foodCooking.setStatus(orderChanged.getStatus());
+                repository().save(foodCooking);
+            }    
+         });
+        
+    }
+```
