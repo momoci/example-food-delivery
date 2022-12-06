@@ -526,9 +526,7 @@ Vary: Access-Control-Request-Headers
 
 ```
 public static void updateStatus(OrderChanged orderChanged){
-        repository().findById(orderChanged.getId()).ifPresent(foodCooking->{
-            
-            // foodCooking.get // do something
+        repository().findById(orderChanged.getId()).ifPresent(foodCooking->{      
             if(foodCooking.getStatus().equals("주문접수중") || 
                foodCooking.getStatus().equals("주문접수") || 
                foodCooking.getStatus().equals("주문승인")){
@@ -539,7 +537,6 @@ public static void updateStatus(OrderChanged orderChanged){
                 foodCooking.setStatus(orderChanged.getStatus());
                 repository().save(foodCooking);
             }    
-         });
-        
+         });        
     }
 ```
