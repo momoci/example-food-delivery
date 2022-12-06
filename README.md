@@ -48,71 +48,86 @@
 사용자에 의해 주문상태가 변경되면 각 이벤트에 맞는 동작이 수행된다.
 
 ```
-public void onPostPersist(){
+gitpod /workspace/delivery (main) $ http :8081/orderLists foodId="피자" address="111" status="주문접수중"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Tue, 06 Dec 2022 04:52:33 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orderLists/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
 
-        //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
+{
+    "_links": {
+        "orderList": {
+            "href": "http://localhost:8081/orderLists/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orderLists/1"
+        }
+    },
+    "address": "111",
+    "customerId": null,
+    "foodId": "피자",
+    "status": "주문접수중"
+}
+```
 
+```
+gitpod /workspace/delivery (main) $ http :8082/foodCookings
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Tue, 06 Dec 2022 04:53:05 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
 
-        delivery.external.PaymentStatus paymentStatus = new delivery.external.PaymentStatus();
-        // mappings goes here
-        OrderApplication.applicationContext.getBean(delivery.external.PaymentStatusService.class)
-            .cancelPayment(paymentStatus);
-
-
-        OrderCanceled orderCanceled = new OrderCanceled(this);
-        orderCanceled.publishAfterCommit();
-
-
-
-        OrderPlaced orderPlaced = new OrderPlaced(this);
-        orderPlaced.publishAfterCommit();
-
-
-
-        OrderChanged orderChanged = new OrderChanged(this);
-        orderChanged.publishAfterCommit();
-
+{
+    "_embedded": {
+        "foodCookings": [
+            {
+                "_links": {
+                    "accept": {
+                        "href": "http://localhost:8082/foodCookings/1/accept"
+                    },
+                    "foodCooking": {
+                        "href": "http://localhost:8082/foodCookings/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8082/foodCookings/1"
+                    }
+                },
+                "address": "111",
+                "foodId": "피자",
+                "orderCapacity": null,
+                "orderCount": null,
+                "orderId": 1,
+                "status": "주문접수중"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8082/profile/foodCookings"
+        },
+        "self": {
+            "href": "http://localhost:8082/foodCookings"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
     }
+}
 ```
-
-```
-@StreamListener(value=KafkaProcessor.INPUT, condition="headers['type']=='OrderPlaced'")
-    public void wheneverOrderPlaced_Pay(@Payload OrderPlaced orderPlaced){
-
-        OrderPlaced event = orderPlaced;
-        System.out.println("\n\n##### listener Pay : " + orderPlaced + "\n\n");
-
-
-        
-
-        // Sample Logic //
-        PaymentStatus.pay(event);
-        
-
-        
-
-    }
-```
-
-```
-@StreamListener(value=KafkaProcessor.INPUT, condition="headers['type']=='OrderChanged'")
-    public void wheneverOrderChanged_UpdateStatus(@Payload OrderChanged orderChanged){
-
-        OrderChanged event = orderChanged;
-        System.out.println("\n\n##### listener UpdateStatus : " + orderChanged + "\n\n");
-
-
-        
-
-        // Sample Logic //
-        FoodCooking.updateStatus(event);
-        
-
-        
-
-    }
-```    
 
 # CQRS
 
