@@ -307,8 +307,56 @@ Vary: Access-Control-Request-Headers
 ```
 
 # Circuit Breaker
+Circuit Break 설정
+```
+server:
+  port: 8080
+      
+spring:
+  application:
+    name: order
+---
 
+feign:
+  hystrix:
+    enabled: true
+    
+hystrix:
+  command:
+    default:
+      execution.isolation.thread.timeoutInMilliseconds: 700
+```
 
+확인
+```
+gitpod /workspace/delivery (main) $ siege -c2 -t10S  -v --content-type "application/json" 'http://localhost:8081/orderLists POST {"foodId":"피자"}'
+** SIEGE 4.0.4
+** Preparing 2 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 500     0.44 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.44 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.05 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.06 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.02 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.02 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.02 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.02 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.06 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.05 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.02 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.02 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.05 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.05 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+HTTP/1.1 500     0.01 secs:     261 bytes ==> POST http://localhost:8081/orderLists
+```
 
 # Gateway / Ingress
 
