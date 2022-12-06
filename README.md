@@ -129,20 +129,60 @@ Vary: Access-Control-Request-Headers
 
 # CQRS
 
-분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트와 파이선으로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
-
 ```
-cd app
-mvn spring-boot:run
+gitpod /workspace/delivery (main) $ http :8084/myPages
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Tue, 06 Dec 2022 05:34:21 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
 
-cd pay
-mvn spring-boot:run 
-
-cd store
-mvn spring-boot:run  
-
-cd customer
-python policy-handler.py 
+{
+    "_embedded": {
+        "myPages": [
+            {
+                "_links": {
+                    "myPage": {
+                        "href": "http://localhost:8084/myPages/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8084/myPages/1"
+                    }
+                },
+                "status": "주문접수"
+            },
+            {
+                "_links": {
+                    "myPage": {
+                        "href": "http://localhost:8084/myPages/2"
+                    },
+                    "self": {
+                        "href": "http://localhost:8084/myPages/2"
+                    }
+                },
+                "status": "주문승인"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8084/profile/myPages"
+        },
+        "self": {
+            "href": "http://localhost:8084/myPages"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 2,
+        "totalPages": 1
+    }
+}
 ```
 
 # Compensation / Correlation
