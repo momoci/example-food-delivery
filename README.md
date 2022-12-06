@@ -189,21 +189,83 @@ Vary: Access-Control-Request-Headers
 ```
 
 # Compensation / Correlation
-
-분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트와 파이선으로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
+주문을 하면 paymentStatus에 상태가 false로 저장되고 OrderCancel을 하면 상태가 true 변경된다.
 
 ```
-cd app
-mvn spring-boot:run
+gitpod /workspace/delivery (main) $ http :8081/orderLists foodId="짜장면" address="222" tatus="주문접수중"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Tue, 06 Dec 2022 06:56:00 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orderLists/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
 
-cd pay
-mvn spring-boot:run 
-
-cd store
-mvn spring-boot:run  
-
-cd customer
-python policy-handler.py 
+{
+    "_links": {
+        "orderList": {
+            "href": "http://localhost:8081/orderLists/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orderLists/1"
+        }
+    },
+    "address": "222",
+    "customerId": null,
+    "foodId": "짜장면",
+    "status": null
+}
+```
+```
+"paymentStatuses": [
+            {
+                "_links": {
+                    "cancelpayment": {
+                        "href": "http://localhost:8081/paymentStatuses/1/cancelpayment"
+                    },
+                    "paymentStatus": {
+                        "href": "http://localhost:8081/paymentStatuses/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8081/paymentStatuses/1"
+                    }
+                },
+                "cancel": false,
+                "orderId": 1
+            }
+        ]
+```
+```
+gitpod /workspace/delivery (main) $ http DELETE :8081/orderLists/1
+HTTP/1.1 204 
+Connection: keep-alive
+Date: Tue, 06 Dec 2022 06:37:42 GMT
+Keep-Alive: timeout=60
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+```
+```
+"paymentStatuses": [
+            {
+                "_links": {
+                    "cancelpayment": {
+                        "href": "http://localhost:8081/paymentStatuses/1/cancelpayment"
+                    },
+                    "paymentStatus": {
+                        "href": "http://localhost:8081/paymentStatuses/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8081/paymentStatuses/1"
+                    }
+                },
+                "cancel": true,
+                "orderId": 1
+            }
+        ]
 ```
 
 # Request / Response
