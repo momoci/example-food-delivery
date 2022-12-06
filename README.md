@@ -30,7 +30,8 @@
     1. 고객이 자주 상점관리에서 확인할 수 있는 배달상태를 주문시스템(프론트엔드)에서 확인할 수 있어야 한다  CQRS
     1. 배달상태가 바뀔때마다 카톡 등으로 알림을 줄 수 있어야 한다  Event driven
 
-![image](https://user-images.githubusercontent.com/118874947/205559339-94f395a2-071c-4242-868e-f05d0ad80154.png)
+![image](https://user-images.githubusercontent.com/118874947/205822241-18e876df-e567-4fd1-9840-55e033f2778a.png)
+
 
 # 체크포인트
 1. Saga (Pub / Sub)
