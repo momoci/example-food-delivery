@@ -269,8 +269,42 @@ Vary: Access-Control-Request-Headers
 ```
 
 # Request / Response
+주문 취소를 하면 상태를 확인 후 취소 절차가 진행된다
 
+```
+@PreRemove
+    public void onPreRemove(){
+        if ("주문접수중".equals(status) || "주문접수".equals(status) || "주문승인".equals(status)) {
+            delivery.external.CancelPaymentCommand cancelPaymentCommand = new delivery.external.CancelPaymentCommand();
+            cancelPaymentCommand.setCancel(true);
+            // // mappings goes here
+            OrderApplication.applicationContext.getBean(delivery.external.PaymentStatusService.class)
+                .cancelPayment(getId(), cancelPaymentCommand);
 
+            OrderCanceled orderCanceled = new OrderCanceled(this);
+            orderCanceled.publishAfterCommit();
+        } else {
+            throw new RuntimeException("Order Status : " + status);
+        }        
+    }
+```
+```
+@RequestMapping(value = "paymentStatuses/{id}/cancelpayment",
+        method = RequestMethod.PUT,
+        produces = "application/json;charset=UTF-8")
+    public PaymentStatus cancelPayment(@PathVariable(value = "id") Long id, @RequestBody CancelPaymentCommand cancelPaymentCommand, HttpServletRequest request, HttpServletResponse response) throws Exception {
+            System.out.println("##### /paymentStatus/cancelPayment  called #####");
+            Optional<PaymentStatus> optionalPaymentStatus = paymentStatusRepository.findById(id);
+            
+            optionalPaymentStatus.orElseThrow(()-> new Exception("No Entity Found"));
+            PaymentStatus paymentStatus = optionalPaymentStatus.get();
+            paymentStatus.cancelPayment(cancelPaymentCommand);
+            
+            paymentStatusRepository.save(paymentStatus);
+            return paymentStatus;
+            
+    }
+```
 
 # Circuit Breaker
 
